@@ -16,7 +16,7 @@ class OrdersScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         itemCount: orderList.orders.length,
-        itemBuilder: (context, i) {
+        itemBuilder: (_, i) {
           return OrderItemListTile(orderList.orders[i]);
         },
       ),

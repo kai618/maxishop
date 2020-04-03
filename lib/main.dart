@@ -4,6 +4,7 @@ import 'package:shopapp/providers/orders.dart';
 import 'package:shopapp/screens/cart_screen.dart';
 import 'package:shopapp/screens/orders_screen.dart';
 import 'package:shopapp/screens/product_details_screen.dart';
+import 'package:shopapp/screens/product_management_screen.dart';
 import 'package:shopapp/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shopapp/providers/product_manager.dart';
@@ -15,9 +16,9 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (context) => ProductManager()),
-        ChangeNotifierProvider(create: (context) => Cart()),
-        ChangeNotifierProvider(create: (context) => Orders()),
+        ChangeNotifierProvider(create: (_) => ProductManager()),
+        ChangeNotifierProvider(create: (_) => Cart()),
+        ChangeNotifierProvider(create: (_) => Orders()),
       ],
       child: MaterialApp(
         title: 'Maxishop',
@@ -26,12 +27,13 @@ class App extends StatelessWidget {
           accentColor: Colors.deepOrangeAccent,
           fontFamily: 'Lato',
         ),
-        initialRoute: ProductsOverviewScreen.routeName,
+        initialRoute: ProductManagementScreen.routeName,
         routes: {
-          ProductsOverviewScreen.routeName: (context) => ProductsOverviewScreen(),
-          ProductDetailsScreen.routeName: (context) => ProductDetailsScreen(),
-          CartScreen.routeName: (context) => CartScreen(),
-          OrdersScreen.routeName: (context) => OrdersScreen(),
+          ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
+          ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
+          CartScreen.routeName: (_) => CartScreen(),
+          OrdersScreen.routeName: (_) => OrdersScreen(),
+          ProductManagementScreen.routeName: (_) => ProductManagementScreen(),
         },
       ),
     );

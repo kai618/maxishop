@@ -25,6 +25,29 @@ class CartItemListTile extends StatelessWidget {
         child: Icon(Icons.delete, color: Colors.white, size: 40),
       ),
       direction: DismissDirection.endToStart,
+      confirmDismiss: (direction) {
+        if (direction == DismissDirection.endToStart) {
+          return showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Are you sure?"),
+                  content: Text("Do you want to remove ${item.title}?"),
+                  actions: <Widget>[
+                    FlatButton(
+                      child: Text("Yes"),
+                      onPressed: () => Navigator.of(context).pop(true),
+                    ),
+                    FlatButton(
+                      child: Text("No"),
+                      onPressed: () => Navigator.of(context).pop(false),
+                    )
+                  ],
+                );
+              });
+        }
+        return Future.value(false);
+      },
       onDismissed: (direction) {
         if (direction == DismissDirection.endToStart) cart.remove(item.id);
       },
