@@ -35,9 +35,11 @@ class CartScreen extends StatelessWidget {
                     highlightElevation: 4,
                     child: const Text("ORDER NOW"),
                     onPressed: () {
-                      final orders = Provider.of<Orders>(context, listen: false);
-                      orders.add(cart.items.values.toList(), cart.totalCost);
-                      cart.clear();
+                      if (cart.items.isNotEmpty) {
+                        final orders = Provider.of<Orders>(context, listen: false);
+                        orders.add(cart.items.values.toList(), cart.totalCost);
+                        cart.clear();
+                      }
                     },
                   ),
                 ],

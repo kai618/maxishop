@@ -32,10 +32,27 @@ class ProductItem extends StatelessWidget {
           ),
           trailing: IconButton(
             icon: Icon(Icons.shopping_cart),
+            color: Theme.of(context).accentColor,
             onPressed: () {
               cart.add(product.id, product.price, product.title);
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(SnackBar(
+                duration: const Duration(milliseconds: 1000),
+                backgroundColor: Theme.of(context).primaryColor,
+                content: Text(
+                  "${product.title} added.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                action: SnackBarAction(
+                  label: "UNDO",
+                  textColor: Colors.white,
+                  onPressed: () {
+                    cart.decrementItem(product.id);
+                  },
+                ),
+              ));
             },
-            color: Theme.of(context).accentColor,
           ),
           backgroundColor: Colors.black54,
           title: Text(

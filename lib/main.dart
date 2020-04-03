@@ -20,7 +20,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (context) => Orders()),
       ],
       child: MaterialApp(
-        title: 'Shop App',
+        title: 'Maxishop',
         theme: ThemeData(
           primarySwatch: Colors.purple,
           accentColor: Colors.deepOrangeAccent,
