@@ -1,4 +1,4 @@
-# shopapp
+# Maxishop
 
 A new Flutter application.
 
