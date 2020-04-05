@@ -4,6 +4,7 @@ import 'package:shopapp/providers/orders.dart';
 import 'package:shopapp/screens/cart_screen.dart';
 import 'package:shopapp/screens/orders_screen.dart';
 import 'package:shopapp/screens/product_details_screen.dart';
+import 'package:shopapp/screens/product_editing_screen.dart';
 import 'package:shopapp/screens/product_management_screen.dart';
 import 'package:shopapp/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
@@ -26,6 +27,11 @@ class App extends StatelessWidget {
           primarySwatch: Colors.purple,
           accentColor: Colors.deepOrangeAccent,
           fontFamily: 'Lato',
+          inputDecorationTheme: InputDecorationTheme(
+            hintStyle: TextStyle(color: Colors.red),
+            prefixStyle: TextStyle(color: Colors.red),
+            isDense: true,
+          ),
         ),
         initialRoute: ProductManagementScreen.routeName,
         routes: {
@@ -34,6 +40,7 @@ class App extends StatelessWidget {
           CartScreen.routeName: (_) => CartScreen(),
           OrdersScreen.routeName: (_) => OrdersScreen(),
           ProductManagementScreen.routeName: (_) => ProductManagementScreen(),
+          ProductEditingScreen.routeName: (_) => ProductEditingScreen(),
         },
       ),
     );
