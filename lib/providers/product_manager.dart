@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shopapp/providers/product.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ProductManager with ChangeNotifier {
   List<Product> _products = Product.getData();
@@ -18,16 +20,18 @@ class ProductManager with ChangeNotifier {
   }
 
   void add(String title, String description, String imageUrl, double price) {
-    _products.insert(
-      0,
-      Product(
-        id: DateTime.now().toString(),
-        title: title,
-        description: description,
-        imageUrl: imageUrl,
-        price: price,
-      ),
+    final product = Product(
+      id: DateTime.now().toString(),
+      title: title,
+      description: description,
+      price: price,
+      imageUrl: imageUrl,
     );
+
+    const url = "https://maxi-eshop.firebaseio.com/products";
+    http.post(url, body: json.encode(product.toJson()));
+
+    _products.insert(0, product);
     notifyListeners();
   }
 
@@ -38,14 +42,19 @@ class ProductManager with ChangeNotifier {
     String imageUrl,
     double price,
   ) {
-    final index = _products.indexWhere((p) => p.id == id);
-    _products[index] = Product(
+    final product = Product(
       id: id,
       title: title,
       description: description,
-      imageUrl: imageUrl,
       price: price,
+      imageUrl: imageUrl,
     );
+
+    const url = "https://maxi-eshop.firebaseio.com/products.json";
+    http.post(url, body: json.encode(product.toJson()));
+
+    final index = _products.indexWhere((p) => p.id == id);
+    _products[index] = product;
     notifyListeners();
   }
 }
