@@ -24,14 +24,9 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'Maxishop',
         theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrangeAccent,
+          primarySwatch: Colors.indigo,
+          accentColor: Colors.amberAccent,
           fontFamily: 'Lato',
-          inputDecorationTheme: InputDecorationTheme(
-            hintStyle: TextStyle(color: Colors.red),
-            prefixStyle: TextStyle(color: Colors.red),
-            isDense: true,
-          ),
         ),
         initialRoute: ProductManagementScreen.routeName,
         routes: {

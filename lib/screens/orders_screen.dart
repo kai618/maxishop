@@ -14,12 +14,24 @@ class OrdersScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text("Your Orders"),
       ),
-      body: ListView.builder(
-        itemCount: orderList.orders.length,
-        itemBuilder: (_, i) {
-          return OrderItemListTile(orderList.orders[i]);
-        },
-      ),
+      body: (orderList.orders.isEmpty)
+          ? Card(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                child: const Text(
+                  "You have no orders.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+            )
+          : ListView.builder(
+              itemCount: orderList.orders.length,
+              itemBuilder: (_, i) {
+                return OrderItemListTile(orderList.orders[i]);
+              },
+            ),
       drawer: AppDrawer(),
     );
   }

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopapp/providers/product.dart';
+import 'package:shopapp/providers/product_manager.dart';
+import 'package:shopapp/screens/product_editing_screen.dart';
 
 class ProductManagementListTile extends StatelessWidget {
   final Product product;
@@ -17,12 +20,40 @@ class ProductManagementListTile extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.edit),
             color: Theme.of(context).primaryColor,
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => ProductEditingScreen(mode: Mode.Update),
+                  settings: RouteSettings(arguments: product.id),
+                ),
+              );
+            },
           ),
           IconButton(
             icon: const Icon(Icons.delete),
             color: Theme.of(context).errorColor,
-            onPressed: () {},
+            onPressed: () {
+              showDialog<bool>(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      title: const Text("Product Removal", style: TextStyle(color: Colors.red)),
+                      content: Text("Do you want to delete ${product.title}?"),
+                      actions: <Widget>[
+                        FlatButton(
+                          child: const Text("Yes"),
+                          onPressed: () => Navigator.of(context).pop(true),
+                        ),
+                        FlatButton(
+                          child: const Text("No"),
+                          onPressed: () => Navigator.of(context).pop(false),
+                        ),
+                      ],
+                    );
+                  }).then((val) {
+                if (val) Provider.of<ProductManager>(context, listen: false).remove(product.id);
+              });
+            },
           ),
         ],
       ),

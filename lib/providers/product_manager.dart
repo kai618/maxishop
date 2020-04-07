@@ -16,4 +16,36 @@ class ProductManager with ChangeNotifier {
     _products.removeWhere((p) => p.id == id);
     notifyListeners();
   }
+
+  void add(String title, String description, String imageUrl, double price) {
+    _products.insert(
+      0,
+      Product(
+        id: DateTime.now().toString(),
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+        price: price,
+      ),
+    );
+    notifyListeners();
+  }
+
+  void update(
+    String id,
+    String title,
+    String description,
+    String imageUrl,
+    double price,
+  ) {
+    final index = _products.indexWhere((p) => p.id == id);
+    _products[index] = Product(
+      id: id,
+      title: title,
+      description: description,
+      imageUrl: imageUrl,
+      price: price,
+    );
+    notifyListeners();
+  }
 }

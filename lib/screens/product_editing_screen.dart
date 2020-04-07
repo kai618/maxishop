@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shopapp/providers/product_manager.dart';
+
+enum Mode { Update, Add }
 
 class ProductEditingScreen extends StatefulWidget {
   static const routeName = "/product-editing";
+  final Mode mode;
+
+  ProductEditingScreen({this.mode = Mode.Add});
 
   @override
   _ProductEditingScreenState createState() => _ProductEditingScreenState();
@@ -26,8 +33,8 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
   void dispose() {
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
-    _imageUrlFocusNode.dispose();
     _imageUrlFocusNode.removeListener(onFocusChange);
+    _imageUrlFocusNode.dispose();
     _imageUrlController.dispose();
 
     super.dispose();
@@ -37,24 +44,51 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     if (!_imageUrlFocusNode.hasFocus) setState(() {});
   }
 
-  void saveInput() {
+  void saveProduct() {
     final form = _formKey.currentState;
     if (!form.validate()) return;
     form.save();
-    print(_input);
+
+    switch (widget.mode) {
+      case Mode.Update:
+        Provider.of<ProductManager>(context, listen: false).update(
+          _input.id,
+          _input.title,
+          _input.description,
+          _input.imageUrl,
+          double.parse(_input.price),
+        );
+        break;
+      case Mode.Add:
+        Provider.of<ProductManager>(context, listen: false).add(
+          _input.title,
+          _input.description,
+          _input.imageUrl,
+          double.parse(_input.price),
+        );
+        break;
+    }
+
+    Navigator.of(context).pop();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.mode == Mode.Update) {
+      final id = ModalRoute.of(context).settings.arguments as String;
+      final product = Provider.of<ProductManager>(context, listen: false).findById(id);
+      _input.id = product.id;
+      _input.title = product.title;
+      _input.price = product.price.toString();
+      _input.description = product.description;
+      _imageUrlController.text = product.imageUrl;
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("Product Editing"),
+        title: const Text("Product Editing"),
         actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.save),
-              onPressed: () {
-                saveInput();
-              }),
+          IconButton(icon: const Icon(Icons.save), onPressed: this.saveProduct),
         ],
       ),
       body: Padding(
@@ -66,6 +100,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
               children: <Widget>[
                 TextFormField(
                   decoration: const InputDecoration(labelText: "Title"),
+                  initialValue: _input.title,
                   textInputAction: TextInputAction.next,
                   // the bottom right key of the soft keyboard
                   onFieldSubmitted: (_) {
@@ -79,13 +114,14 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
                 ),
                 TextFormField(
                   decoration: const InputDecoration(labelText: "Price"),
+                  initialValue: _input.price,
                   textInputAction: TextInputAction.next,
                   keyboardType: TextInputType.number,
                   focusNode: _priceFocusNode,
                   onFieldSubmitted: (_) {
                     FocusScope.of(context).requestFocus(_descriptionFocusNode);
                   },
-                  onSaved: (value) => _input.price = double.parse(value),
+                  onSaved: (value) => _input.price = value,
                   validator: (val) {
                     if (val.isEmpty)
                       return "Please provide a number.";
@@ -96,8 +132,9 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
                   },
                 ),
                 TextFormField(
-                  maxLines: 3,
                   decoration: const InputDecoration(labelText: "Description"),
+                  initialValue: _input.description,
+                  maxLines: 3,
                   keyboardType: TextInputType.multiline,
                   focusNode: _descriptionFocusNode,
                   onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_priceFocusNode),
@@ -139,9 +176,12 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
                           onEditingComplete: () {
                             setState(() {});
                           },
-                          onSaved: (value) => _input.imageUrl = value,
-                          validator: (value) {
-                            return (value.isEmpty) ? "Please provide a URL." : null;
+                          onSaved: (val) => _input.imageUrl = val,
+                          validator: (val) {
+                            if (val.isEmpty) return "Please provide a URL.";
+                            if (!val.startsWith("http://") && !val.startsWith("https://"))
+                              return "Invalid URL";
+                            return null;
                           },
                         ),
                       ),
@@ -161,7 +201,6 @@ class ProductInput {
   String id;
   String title = "";
   String description = "";
-  double price = 0;
+  String price = "";
   String imageUrl = "";
-  bool isFavorite = false;
 }
