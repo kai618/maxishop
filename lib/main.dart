@@ -10,7 +10,9 @@ import 'package:shopapp/screens/products_overview_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:shopapp/providers/product_manager.dart';
 
-void main() => runApp(App());
+void main() {
+  runApp(App());
+}
 
 class App extends StatelessWidget {
   @override
@@ -24,8 +26,8 @@ class App extends StatelessWidget {
       child: MaterialApp(
         title: 'Maxishop',
         theme: ThemeData(
-          primarySwatch: Colors.indigo,
-          accentColor: Colors.amberAccent,
+          primarySwatch: Colors.deepPurple,
+          accentColor: Colors.greenAccent,
           fontFamily: 'Lato',
         ),
         initialRoute: ProductManagementScreen.routeName,

@@ -18,7 +18,6 @@ class Product with ChangeNotifier {
   });
 
   Map<String, dynamic> toJson() => {
-        "id": this.id,
         "title": this.title,
         "description": this.description,
         "price": this.price,

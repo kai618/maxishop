@@ -19,29 +19,36 @@ class ProductManager with ChangeNotifier {
     notifyListeners();
   }
 
-  void add(String title, String description, String imageUrl, double price) {
+  Future<void> add(String title, String description, String imageUrl, double price) async {
+    const url = "https://maxi-eshop.firebaseio.com/products.json";
+    final res = await http.post(url,
+        body: json.encode({
+          "title": title,
+          "description": description,
+          "price": price,
+          "imageUrl": imageUrl,
+          "isFavorite": false,
+        }));
+
     final product = Product(
-      id: DateTime.now().toString(),
+      id: json.decode(res.body)["name"],
       title: title,
       description: description,
       price: price,
       imageUrl: imageUrl,
     );
 
-    const url = "https://maxi-eshop.firebaseio.com/products";
-    http.post(url, body: json.encode(product.toJson()));
-
     _products.insert(0, product);
     notifyListeners();
   }
 
-  void update(
+  Future<void> update(
     String id,
     String title,
     String description,
     String imageUrl,
     double price,
-  ) {
+  ) async {
     final product = Product(
       id: id,
       title: title,
@@ -50,8 +57,13 @@ class ProductManager with ChangeNotifier {
       imageUrl: imageUrl,
     );
 
-    const url = "https://maxi-eshop.firebaseio.com/products.json";
-    http.post(url, body: json.encode(product.toJson()));
+    final url = "https://maxi-eshop.firebaseio.com/products/$id.json";
+
+    try {
+      await http.put(url, body: json.encode(product.toJson()));
+    } catch (err) {
+      throw err;
+    }
 
     final index = _products.indexWhere((p) => p.id == id);
     _products[index] = product;

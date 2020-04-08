@@ -21,6 +21,7 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
   final _imageUrlController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _input = ProductInput();
+  var isLoading = false;
 
   @override
   void initState() {
@@ -48,28 +49,47 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
     final form = _formKey.currentState;
     if (!form.validate()) return;
     form.save();
+    setState(() => isLoading = true);
 
+    final manager = Provider.of<ProductManager>(context, listen: false);
     switch (widget.mode) {
       case Mode.Update:
-        Provider.of<ProductManager>(context, listen: false).update(
-          _input.id,
-          _input.title,
-          _input.description,
-          _input.imageUrl,
-          double.parse(_input.price),
-        );
+        manager
+            .update(_input.id, _input.title, _input.description, _input.imageUrl,
+                double.parse(_input.price))
+            .catchError((err) => _buildDialog(err.toString()))
+            .then((_) => popOut());
         break;
       case Mode.Add:
-        Provider.of<ProductManager>(context, listen: false).add(
-          _input.title,
-          _input.description,
-          _input.imageUrl,
-          double.parse(_input.price),
-        );
+        manager
+            .add(_input.title, _input.description, _input.imageUrl, double.parse(_input.price))
+            .catchError((err) => _buildDialog(err.toString()))
+            .then((_) => popOut());
         break;
     }
+  }
 
+  void popOut() {
+    setState(() => isLoading = false);
     Navigator.of(context).pop();
+  }
+
+  Future _buildDialog(String err) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("An error occurred"),
+          content: Text(err.toString()),
+          actions: <Widget>[
+            OutlineButton(
+              child: const Text("OK"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -91,108 +111,112 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
           IconButton(icon: const Icon(Icons.save), onPressed: this.saveProduct),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(15),
-        child: Form(
-          key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: <Widget>[
-                TextFormField(
-                  decoration: const InputDecoration(labelText: "Title"),
-                  initialValue: _input.title,
-                  textInputAction: TextInputAction.next,
-                  // the bottom right key of the soft keyboard
-                  onFieldSubmitted: (_) {
-                    // when user presses the bottom right key
-                    FocusScope.of(context).requestFocus(_priceFocusNode);
-                  },
-                  onSaved: (value) => _input.title = value,
-                  validator: (value) {
-                    return (value.isEmpty) ? "Please provide a title." : null;
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: "Price"),
-                  initialValue: _input.price,
-                  textInputAction: TextInputAction.next,
-                  keyboardType: TextInputType.number,
-                  focusNode: _priceFocusNode,
-                  onFieldSubmitted: (_) {
-                    FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                  },
-                  onSaved: (value) => _input.price = value,
-                  validator: (val) {
-                    if (val.isEmpty)
-                      return "Please provide a number.";
-                    else if (double.tryParse(val) == null)
-                      return "Invalid number.";
-                    else
-                      return null;
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: "Description"),
-                  initialValue: _input.description,
-                  maxLines: 3,
-                  keyboardType: TextInputType.multiline,
-                  focusNode: _descriptionFocusNode,
-                  onFieldSubmitted: (_) => FocusScope.of(context).requestFocus(_priceFocusNode),
-                  onSaved: (value) => _input.description = value,
-                  validator: (value) {
-                    return (value.isEmpty) ? "Please provide a description." : null;
-                  },
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      width: 100,
-                      height: 100,
-                      margin: const EdgeInsets.only(top: 8, right: 10),
-                      decoration: BoxDecoration(border: Border.all(width: 1, color: Colors.grey)),
-                      child: _imageUrlController.text.isEmpty
-                          ? Center(child: Text("Enter a URL"))
-                          : Image.network(_imageUrlController.text, fit: BoxFit.contain),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: TextFormField(
-                          style: TextStyle(fontSize: 16),
-                          cursorColor: Colors.green,
-                          decoration: InputDecoration(
-                            focusedBorder:
-                                OutlineInputBorder(borderSide: BorderSide(color: Colors.green)),
-                            border: OutlineInputBorder(),
-                            filled: true,
-                            fillColor: Colors.blue[50],
-                            prefixIcon: const Icon(Icons.image),
-                          ),
-                          keyboardType: TextInputType.url,
-                          textInputAction: TextInputAction.done,
-                          controller: _imageUrlController,
-                          focusNode: _imageUrlFocusNode,
-                          onEditingComplete: () {
-                            setState(() {});
-                          },
-                          onSaved: (val) => _input.imageUrl = val,
-                          validator: (val) {
-                            if (val.isEmpty) return "Please provide a URL.";
-                            if (!val.startsWith("http://") && !val.startsWith("https://"))
-                              return "Invalid URL";
-                            return null;
-                          },
-                        ),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(15),
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: "Title"),
+                        initialValue: _input.title,
+                        textInputAction: TextInputAction.next,
+                        // the bottom right key of the soft keyboard
+                        onFieldSubmitted: (_) {
+                          // when user presses the bottom right key
+                          FocusScope.of(context).requestFocus(_priceFocusNode);
+                        },
+                        onSaved: (value) => _input.title = value,
+                        validator: (value) {
+                          return (value.isEmpty) ? "Please provide a title." : null;
+                        },
                       ),
-                    )
-                  ],
-                )
-              ],
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: "Price"),
+                        initialValue: _input.price,
+                        textInputAction: TextInputAction.next,
+                        keyboardType: TextInputType.number,
+                        focusNode: _priceFocusNode,
+                        onFieldSubmitted: (_) {
+                          FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                        },
+                        onSaved: (value) => _input.price = value,
+                        validator: (val) {
+                          if (val.isEmpty)
+                            return "Please provide a number.";
+                          else if (double.tryParse(val) == null)
+                            return "Invalid number.";
+                          else
+                            return null;
+                        },
+                      ),
+                      TextFormField(
+                        decoration: const InputDecoration(labelText: "Description"),
+                        initialValue: _input.description,
+                        maxLines: 3,
+                        keyboardType: TextInputType.multiline,
+                        focusNode: _descriptionFocusNode,
+                        onFieldSubmitted: (_) =>
+                            FocusScope.of(context).requestFocus(_priceFocusNode),
+                        onSaved: (value) => _input.description = value,
+                        validator: (value) {
+                          return (value.isEmpty) ? "Please provide a description." : null;
+                        },
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Container(
+                            width: 100,
+                            height: 100,
+                            margin: const EdgeInsets.only(top: 8, right: 10),
+                            decoration:
+                                BoxDecoration(border: Border.all(width: 1, color: Colors.grey)),
+                            child: _imageUrlController.text.isEmpty
+                                ? Center(child: Text("Enter a URL"))
+                                : Image.network(_imageUrlController.text, fit: BoxFit.contain),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 8.0),
+                              child: TextFormField(
+                                style: TextStyle(fontSize: 16),
+                                cursorColor: Colors.green,
+                                decoration: InputDecoration(
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.green)),
+                                  border: OutlineInputBorder(),
+                                  filled: true,
+                                  fillColor: Colors.blue[50],
+                                  prefixIcon: const Icon(Icons.image),
+                                ),
+                                keyboardType: TextInputType.url,
+                                textInputAction: TextInputAction.done,
+                                controller: _imageUrlController,
+                                focusNode: _imageUrlFocusNode,
+                                onEditingComplete: () {
+                                  setState(() {});
+                                },
+                                onSaved: (val) => _input.imageUrl = val,
+                                validator: (val) {
+                                  if (val.isEmpty) return "Please provide a URL.";
+                                  if (!val.startsWith("http://") && !val.startsWith("https://"))
+                                    return "Invalid URL";
+                                  return null;
+                                },
+                              ),
+                            ),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
