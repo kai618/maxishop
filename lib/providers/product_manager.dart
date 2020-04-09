@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProductManager with ChangeNotifier {
-  List<Product> _products = Product.getData();
+  List<Product> _products = [];
 
   List<Product> get products => [..._products];
 
@@ -68,5 +68,28 @@ class ProductManager with ChangeNotifier {
     final index = _products.indexWhere((p) => p.id == id);
     _products[index] = product;
     notifyListeners();
+  }
+
+  Future<void> fetchProducts() async {
+    final url = "https://maxi-eshop.firebaseio.com/products.json";
+    try {
+      final response = await http.get(url);
+      final products = json.decode(response.body) as Map<String, dynamic>;
+      final fetchedProducts = <Product>[];
+      products.forEach((key, value) {
+        fetchedProducts.add(Product(
+          id: key,
+          title: value["title"],
+          imageUrl: value["imageUrl"],
+          description: value["description"],
+          price: value["price"],
+          isFavorite: value["isFavorite"],
+        ));
+      });
+      _products = fetchedProducts;
+      notifyListeners();
+    } catch (error) {
+      throw error;
+    }
   }
 }

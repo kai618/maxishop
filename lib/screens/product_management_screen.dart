@@ -26,17 +26,21 @@ class ProductManagementScreen extends StatelessWidget {
       body: Consumer<ProductManager>(
         builder: (_, manager, __) {
           final products = manager.products;
-          return ListView.builder(
-            itemCount: products.length,
-            itemBuilder: (_, i) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  ProductManagementListTile(products[i]),
-                  const Divider(),
-                ],
-              );
-            },
+          return RefreshIndicator(
+            onRefresh: manager.fetchProducts,
+            color: Theme.of(context).primaryColor,
+            child: ListView.builder(
+              itemCount: products.length,
+              itemBuilder: (_, i) {
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    ProductManagementListTile(products[i]),
+                    const Divider(),
+                  ],
+                );
+              },
+            ),
           );
         },
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shopapp/providers/cart.dart';
 import 'package:shopapp/providers/orders.dart';
 import 'package:shopapp/screens/cart_screen.dart';
+import 'package:shopapp/screens/loading_screen.dart';
 import 'package:shopapp/screens/orders_screen.dart';
 import 'package:shopapp/screens/product_details_screen.dart';
 import 'package:shopapp/screens/product_editing_screen.dart';
@@ -30,8 +31,9 @@ class App extends StatelessWidget {
           accentColor: Colors.greenAccent,
           fontFamily: 'Lato',
         ),
-        initialRoute: ProductManagementScreen.routeName,
+        initialRoute: LoadingScreen.routeName,
         routes: {
+          LoadingScreen.routeName: (_) => LoadingScreen(),
           ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
           ProductDetailsScreen.routeName: (_) => ProductDetailsScreen(),
           CartScreen.routeName: (_) => CartScreen(),

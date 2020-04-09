@@ -58,13 +58,13 @@ class _ProductEditingScreenState extends State<ProductEditingScreen> {
             .update(_input.id, _input.title, _input.description, _input.imageUrl,
                 double.parse(_input.price))
             .catchError((err) => _buildDialog(err.toString()))
-            .then((_) => popOut());
+            .whenComplete(popOut);
         break;
       case Mode.Add:
         manager
             .add(_input.title, _input.description, _input.imageUrl, double.parse(_input.price))
             .catchError((err) => _buildDialog(err.toString()))
-            .then((_) => popOut());
+            .whenComplete(popOut);
         break;
     }
   }
