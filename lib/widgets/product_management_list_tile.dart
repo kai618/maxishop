@@ -51,7 +51,16 @@ class ProductManagementListTile extends StatelessWidget {
                       ],
                     );
                   }).then((val) {
-                if (val) Provider.of<ProductManager>(context, listen: false).remove(product.id);
+                if (val)
+                  Provider.of<ProductManager>(context, listen: false)
+                      .remove(product.id)
+                      .catchError((error) {
+                    Scaffold.of(context).showSnackBar(SnackBar(
+                      content: Text(error.toString(), textAlign: TextAlign.center),
+                      backgroundColor: Theme.of(context).primaryColor,
+                      duration: const Duration(milliseconds: 1500),
+                    ));
+                  });
               });
             },
           ),

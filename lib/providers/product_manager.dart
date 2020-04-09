@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shopapp/models/http_exception.dart';
 import 'package:shopapp/providers/product.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -14,9 +15,22 @@ class ProductManager with ChangeNotifier {
 
   void onFavouriteChange() => notifyListeners();
 
-  void remove(String id) {
-    _products.removeWhere((p) => p.id == id);
+  Future<void> remove(String id) async {
+    final index = _products.indexWhere((p) => p.id == id);
+    final target = _products[index];
+    _products.removeAt(index);
     notifyListeners();
+
+    try {
+//      final url = "https://maxi-eshop.firebaseio.com/products/$id.json";
+      final url = "https://maxi-eshop.firebaseio.com/products/$id"; // wrong url
+      final response = await http.delete(url);
+      if (response.statusCode >= 400) throw HttpException("Something went wrong");
+    } catch (error) {
+      _products.insert(index, target);
+      notifyListeners();
+      throw (error);
+    }
   }
 
   Future<void> add(String title, String description, String imageUrl, double price) async {
@@ -43,12 +57,7 @@ class ProductManager with ChangeNotifier {
   }
 
   Future<void> update(
-    String id,
-    String title,
-    String description,
-    String imageUrl,
-    double price,
-  ) async {
+      String id, String title, String description, String imageUrl, double price) async {
     final product = Product(
       id: id,
       title: title,
@@ -60,7 +69,7 @@ class ProductManager with ChangeNotifier {
     final url = "https://maxi-eshop.firebaseio.com/products/$id.json";
 
     try {
-      await http.put(url, body: json.encode(product.toJson()));
+      await http.patch(url, body: json.encode(product.toJson()));
     } catch (err) {
       throw err;
     }
@@ -75,9 +84,10 @@ class ProductManager with ChangeNotifier {
     try {
       final response = await http.get(url);
       final products = json.decode(response.body) as Map<String, dynamic>;
-      final fetchedProducts = <Product>[];
+
+      _products.clear();
       products.forEach((key, value) {
-        fetchedProducts.add(Product(
+        _products.add(Product(
           id: key,
           title: value["title"],
           imageUrl: value["imageUrl"],
@@ -86,7 +96,6 @@ class ProductManager with ChangeNotifier {
           isFavorite: value["isFavorite"],
         ));
       });
-      _products = fetchedProducts;
       notifyListeners();
     } catch (error) {
       throw error;
