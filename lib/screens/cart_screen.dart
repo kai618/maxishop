@@ -23,6 +23,7 @@ class CartScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   const Text('Total', style: TextStyle(fontSize: 20)),
+                  const SizedBox(width: 30),
                   Chip(
                     label: Text(
                       "\$${cart.totalCost.toStringAsFixed(2)}",
@@ -31,17 +32,8 @@ class CartScreen extends StatelessWidget {
                     backgroundColor: Theme.of(context).primaryColor,
                     elevation: 2,
                   ),
-                  OutlineButton(
-                    highlightElevation: 4,
-                    child: const Text("ORDER NOW"),
-                    onPressed: () {
-                      if (cart.items.isNotEmpty) {
-                        final orders = Provider.of<Orders>(context, listen: false);
-                        orders.add(cart.items.values.toList(), cart.totalCost);
-                        cart.clear();
-                      }
-                    },
-                  ),
+                  const Spacer(),
+                  OrderButton(cart),
                 ],
               ),
             ),
@@ -50,13 +42,63 @@ class CartScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               itemCount: cart.itemCount,
-              itemBuilder: (context, i) {
-                return CartItemListTile(cart.items.values.toList()[i]);
-              },
+              itemBuilder: (_, i) => CartItemListTile(cart.items.values.toList()[i]),
             ),
           )
         ],
       ),
+    );
+  }
+}
+
+class OrderButton extends StatefulWidget {
+  const OrderButton(this.cart);
+
+  final Cart cart;
+
+  @override
+  _OrderButtonState createState() => _OrderButtonState();
+}
+
+class _OrderButtonState extends State<OrderButton> {
+  var _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final items = widget.cart.items;
+
+    return OutlineButton(
+      highlightElevation: 4,
+      child: _isLoading
+          ? SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(Theme.of(context).primaryColor),
+              ),
+            )
+          : const Text("ORDER NOW"),
+      onPressed: (items.isEmpty || _isLoading)
+          ? null
+          : () async {
+              setState(() => _isLoading = true);
+              try {
+                final orders = Provider.of<Orders>(context, listen: false);
+                await orders.add(items.values.toList(), widget.cart.totalCost);
+                widget.cart.clear();
+              } catch (error) {
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(milliseconds: 1500),
+                    content: const Text('Something went wrong'),
+                    backgroundColor: Colors.red[700],
+                  ),
+                );
+              } finally {
+                setState(() => _isLoading = false);
+              }
+            },
     );
   }
 }

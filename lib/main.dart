@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shopapp/providers/cart.dart';
 import 'package:shopapp/providers/orders.dart';
+import 'package:shopapp/providers/product_manager.dart';
 import 'package:shopapp/screens/cart_screen.dart';
 import 'package:shopapp/screens/loading_screen.dart';
 import 'package:shopapp/screens/orders_screen.dart';
@@ -8,8 +10,6 @@ import 'package:shopapp/screens/product_details_screen.dart';
 import 'package:shopapp/screens/product_editing_screen.dart';
 import 'package:shopapp/screens/product_management_screen.dart';
 import 'package:shopapp/screens/products_overview_screen.dart';
-import 'package:provider/provider.dart';
-import 'package:shopapp/providers/product_manager.dart';
 
 void main() {
   runApp(App());

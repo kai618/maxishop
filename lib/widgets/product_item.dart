@@ -9,7 +9,7 @@ import 'package:shopapp/providers/product_manager.dart';
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final product = Provider.of<Product>(context, listen: false);
+    final product = Provider.of<Product>(context);
     final cart = Provider.of<Cart>(context, listen: false);
 
     return ClipRRect(
@@ -26,12 +26,20 @@ class ProductItem extends StatelessWidget {
             icon: Icon(product.isFavorite ? Icons.favorite : Icons.favorite_border),
             color: Theme.of(context).accentColor,
             onPressed: () {
-              product.toggleFavorite();
-              Provider.of<ProductManager>(context, listen: false).onFavouriteChange();
+              Scaffold.of(context).hideCurrentSnackBar();
+              product
+                  .toggleFavorite()
+                  .catchError((error) => Scaffold.of(context).showSnackBar(SnackBar(
+                        backgroundColor: Theme.of(context).primaryColor,
+                        content: Text(error.toString()),
+                      )))
+                  .then((_) {
+                Provider.of<ProductManager>(context, listen: false).onFavouriteChange();
+              });
             },
           ),
           trailing: IconButton(
-            icon: Icon(Icons.shopping_cart),
+            icon: const Icon(Icons.shopping_cart),
             color: Theme.of(context).accentColor,
             onPressed: () {
               cart.add(product.id, product.price, product.title);
@@ -42,7 +50,7 @@ class ProductItem extends StatelessWidget {
                 content: Text(
                   "${product.title} added.",
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
+                  style: const TextStyle(fontSize: 16),
                 ),
                 action: SnackBarAction(
                   label: "UNDO",
@@ -55,11 +63,7 @@ class ProductItem extends StatelessWidget {
             },
           ),
           backgroundColor: Colors.black54,
-          title: Text(
-            product.title,
-            style: TextStyle(),
-            textAlign: TextAlign.center,
-          ),
+          title: Text(product.title, textAlign: TextAlign.center),
         ),
       ),
     );

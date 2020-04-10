@@ -17,7 +17,7 @@ class _LoadingScreenState extends State<LoadingScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       try {
         await Provider.of<ProductManager>(context, listen: false).fetchProducts();
-        Navigator.of(context).pushNamed(ProductsOverviewScreen.routeName);
+        Navigator.of(context).pushReplacementNamed(ProductsOverviewScreen.routeName);
       } catch (error) {
         _buildDialog(error.toString());
       }

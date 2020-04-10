@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
+import 'package:shopapp/models/http_exception.dart';
 
 class Product with ChangeNotifier {
   final String id;
@@ -25,9 +29,19 @@ class Product with ChangeNotifier {
         "isFavorite": this.isFavorite,
       };
 
-  void toggleFavorite() {
+  Future<void> toggleFavorite() async {
     isFavorite = !isFavorite;
     notifyListeners();
+
+    try {
+      final url = 'https://maxi-eshop.firebaseio.com/products/$id';
+      final response = await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
+      if (response.statusCode >= 400) throw const HttpException("Unable to update");
+    } catch (error) {
+      isFavorite = !isFavorite;
+      notifyListeners();
+      throw error;
+    }
   }
 
   static List<Product> getData() {
