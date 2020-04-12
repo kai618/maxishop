@@ -34,7 +34,7 @@ class Product with ChangeNotifier {
     notifyListeners();
 
     try {
-      final url = 'https://maxi-eshop.firebaseio.com/products/$id';
+      final url = 'https://maxi-eshop.firebaseio.com/products/$id.json';
       final response = await http.patch(url, body: json.encode({'isFavorite': isFavorite}));
       if (response.statusCode >= 400) throw const HttpException("Unable to update");
     } catch (error) {

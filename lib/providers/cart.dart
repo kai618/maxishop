@@ -47,7 +47,7 @@ class Cart with ChangeNotifier {
       ifAbsent: () => _items.putIfAbsent(
         productId,
         () => CartItem(
-          id: DateTime.now().toString(),
+          id: DateTime.now().toIso8601String(),
           title: title,
           quantity: 1,
           price: price,

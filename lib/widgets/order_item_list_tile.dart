@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:shopapp/providers/orders.dart';
+import 'package:shopapp/providers/orders_manager.dart';
 import 'package:intl/intl.dart';
 
 class OrderItemListTile extends StatefulWidget {
-  final OrderItem order;
+  final Order order;
 
   OrderItemListTile(this.order);
 
@@ -23,7 +23,7 @@ class _OrderItemListTileState extends State<OrderItemListTile> {
       child: Column(
         children: <Widget>[
           ListTile(
-            title: Text("\$${widget.order.totalCost}"),
+            title: Text("\$${widget.order.totalCost.toStringAsFixed(2)}"),
             subtitle: Text(DateFormat("dd/MM/yyyy hh:mm").format(widget.order.dateTime)),
             trailing: IconButton(
               icon: Icon(expanded ? Icons.expand_less : Icons.expand_more),
@@ -48,7 +48,7 @@ class _OrderItemListTileState extends State<OrderItemListTile> {
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
                           Text("${i.quantity}x   "),
-                          Text(i.price.toString()),
+                          Text(i.price.toStringAsFixed(2)),
                         ],
                       ),
                     );
