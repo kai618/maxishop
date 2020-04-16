@@ -12,6 +12,7 @@ import 'package:shopapp/screens/product_details_screen.dart';
 import 'package:shopapp/screens/product_editing_screen.dart';
 import 'package:shopapp/screens/product_management_screen.dart';
 import 'package:shopapp/screens/products_overview_screen.dart';
+import 'package:shopapp/screens/splash_screen.dart';
 
 void main() {
   runApp(App());
@@ -23,9 +24,11 @@ class App extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => Auth()),
-        ProxyProvider<Auth, ProductManager>(
-          update: (_, auth, productMgr) => productMgr..token = auth.token ?? ProductManager(),
-        ),
+        ChangeNotifierProxyProvider<Auth, ProductManager>(
+            create: (_) => ProductManager(),
+            update: (_, auth, productMgr) {
+              return productMgr..token = auth.token;
+            }),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProvider(create: (_) => OrderManager()),
       ],
@@ -38,7 +41,16 @@ class App extends StatelessWidget {
               accentColor: Colors.greenAccent,
               fontFamily: 'Lato',
             ),
-            home: auth.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            home: auth.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder<bool>(
+                    future: auth.tryAutoLogin(),
+                    builder: (_, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting)
+                        return SplashScreen();
+                      else
+                        return AuthScreen();
+                    }),
             routes: {
               LoadingScreen.routeName: (_) => LoadingScreen(),
               ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
