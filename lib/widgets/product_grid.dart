@@ -15,7 +15,16 @@ class ProductGrid extends StatelessWidget {
     final products = (filter == ViewFilter.All) ? manager.products : manager.favourites;
 
     return RefreshIndicator(
-      onRefresh: manager.fetchProducts,
+      onRefresh: () async {
+        try {
+          await manager.fetchProducts();
+        } catch (error) {
+          Scaffold.of(context).hideCurrentSnackBar();
+          Scaffold.of(context).showSnackBar(SnackBar(
+            content: Text(error.toString()),
+          ));
+        }
+      },
       color: Theme.of(context).primaryColor,
       child: GridView.builder(
         padding: const EdgeInsets.all(10),

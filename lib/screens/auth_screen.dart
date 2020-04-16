@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shopapp/providers/auth.dart';
+import 'package:shopapp/screens/products_overview_screen.dart';
 
 enum AuthMode { SignUp, Login }
 
@@ -104,15 +105,22 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      await Provider.of<Auth>(context, listen: false).signIn(_authData['email'], _authData['password']);
-    } else {
-      print(_authData);
-      await Provider.of<Auth>(context, listen: false).signUp(_authData['email'], _authData['password']);
+
+    try {
+      if (_authMode == AuthMode.Login) {
+        await Provider.of<Auth>(context, listen: false).signIn(_authData['email'], _authData['password']);
+      } else {
+        print(_authData);
+        await Provider.of<Auth>(context, listen: false).signUp(_authData['email'], _authData['password']);
+      }
+      Navigator.of(context).pushReplacementNamed(ProductsOverviewScreen.routeName);
+    } catch (error) {
+      await _showErrorDialog(error.toString());
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   void _switchAuthMode() {
@@ -125,6 +133,23 @@ class _AuthCardState extends State<AuthCard> {
         _authMode = AuthMode.Login;
       });
     }
+  }
+
+  Future<void> _showErrorDialog(String message) {
+    return showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+              title: Text('An Error Occurred!'),
+              content: Text(message),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ));
   }
 
   @override

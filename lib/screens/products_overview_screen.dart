@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 import 'package:shopapp/providers/cart.dart';
+import 'package:shopapp/providers/product_manager.dart';
 import 'package:shopapp/screens/cart_screen.dart';
 import 'package:shopapp/widgets/app_drawer.dart';
 import 'package:shopapp/widgets/product_grid.dart';
@@ -66,7 +68,23 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
           ),
         ],
       ),
-      body: ProductGrid(viewFilter),
+      body: FutureBuilder(
+          future: Provider.of<ProductManager>(context, listen: false).fetchProducts(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting)
+              return SpinKitDualRing(color: Theme.of(context).primaryColor, lineWidth: 4);
+            else {
+              if (snapshot.error != null) {
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(SnackBar(
+                  content: Text(snapshot.error.toString()),
+                ));
+                return Container();
+              } else {
+                return ProductGrid(viewFilter);
+              }
+            }
+          }),
       drawer: AppDrawer(),
     );
   }

@@ -5,6 +5,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ProductManager with ChangeNotifier {
+  String _token;
+
+  set token(String val) => _token = val;
+
   List<Product> _products = [];
 
   List<Product> get products => [..._products];
@@ -56,8 +60,7 @@ class ProductManager with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> update(
-      String id, String title, String description, String imageUrl, double price) async {
+  Future<void> update(String id, String title, String description, String imageUrl, double price) async {
     final product = Product(
       id: id,
       title: title,
@@ -80,10 +83,11 @@ class ProductManager with ChangeNotifier {
   }
 
   Future<void> fetchProducts() async {
-    final url = "https://maxi-eshop.firebaseio.com/products.json";
+    final url = "https://maxi-eshop.firebaseio.com/products.json?auth=$_token";
     try {
       final response = await http.get(url);
       final products = json.decode(response.body) as Map<String, dynamic>;
+      if (response.statusCode >= 400) throw HttpException(json.decode(response.body)['error']);
 
       _products.clear();
       products.forEach((key, value) {
