@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shopapp/providers/auth.dart';
 import 'package:shopapp/providers/cart.dart';
 import 'package:shopapp/providers/orders_manager.dart';
 import 'package:shopapp/providers/product_manager.dart';
+import 'package:shopapp/screens/auth_screen.dart';
 import 'package:shopapp/screens/cart_screen.dart';
 import 'package:shopapp/screens/loading_screen.dart';
 import 'package:shopapp/screens/orders_screen.dart';
@@ -23,6 +25,7 @@ class App extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => ProductManager()),
         ChangeNotifierProvider(create: (_) => Cart()),
         ChangeNotifierProvider(create: (_) => OrderManager()),
+        ChangeNotifierProvider(create: (_) => Auth()),
       ],
       child: MaterialApp(
         title: 'Maxishop',
@@ -31,7 +34,7 @@ class App extends StatelessWidget {
           accentColor: Colors.greenAccent,
           fontFamily: 'Lato',
         ),
-        initialRoute: LoadingScreen.routeName,
+        initialRoute: AuthScreen.routeName,
         routes: {
           LoadingScreen.routeName: (_) => LoadingScreen(),
           ProductsOverviewScreen.routeName: (_) => ProductsOverviewScreen(),
@@ -40,6 +43,7 @@ class App extends StatelessWidget {
           OrdersScreen.routeName: (_) => OrdersScreen(),
           ProductManagementScreen.routeName: (_) => ProductManagementScreen(),
           ProductEditingScreen.routeName: (_) => ProductEditingScreen(),
+          AuthScreen.routeName: (_) => AuthScreen(),
         },
       ),
     );
